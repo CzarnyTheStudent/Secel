@@ -6,6 +6,7 @@ public class Lever : MonoBehaviour
 {
     public enum ResetType { Never, Timed, Immediately}
 
+    public Door Door;
     public ResetType _ResetType = ResetType.Never;
     public GameObject Object;
     public bool On;
@@ -30,6 +31,7 @@ public class Lever : MonoBehaviour
         if (!On)
         {
             SetState(true);
+            Door.Open();
         }
     }
 

@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+
     private float horizontal;            // kierunek ruchu (-1 to w lewo, 0 brak, 1 w prawo)
     private float speed = 8f;            // wartość przez jaką pomnożymy bazowy ruch by uzyskać większą prędkość
     private float jumpingPower = 16f;    // siła skoku
     private bool isFacingRight = true;   // bool w którym zawarta jest informacja o kierunku zwrócenia modelu
     List<Collider2D> inColliders = new List<Collider2D>(); //Lista Obiektów kolidujących. Dodał Kamil
+
 
     private bool canDash = true;         // wskaźnik który zezwala znów wykonać dash
     private bool isDashing;              // wskaźnik, by określić czy obiekt jest w trakcie dasha (np by nie odnosił obrażeń)
@@ -22,6 +24,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;    //ustalenie które obiekty na mapie są podłożem
     [SerializeField] private TrailRenderer tr;         //komponent, który pozwoli dodać do dasha efekt smugi za postacią
 
+    [Header("PublicGameObject")]
+    public Animator Player;
 
     private void Update()
     {
@@ -30,18 +34,31 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        Player.SetBool("Running", false);
 
-        
         horizontal = Input.GetAxisRaw("Horizontal");    // pobranie kierunku ruchu
+
+        if (Input.GetButton("Horizontal"))   // Jeżeli klikasz A lub D To postać odpala animacje biegu
+        {
+            Player.SetBool("Running", true);
+        }
 
         if (Input.GetButtonDown("Jump") && IsGrounded())    // gdy postać jest na ziemi i klikniemy przycisk skoku...
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);   // ... fizyka naszej postaci przyjmie nowy ruch, który dokłada ruch do góry
+            Player.SetBool("Jump", true); //Skacze
+        }
+
+        if (rb.velocity.y < 0f)
+        {
+            Player.SetBool("Jump", false);
+            Player.SetBool("Falling", true);
         }
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)         // funkcja dodana, aby przy krótkim kliknięciu skok był mniejszy
         {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+           
         }
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)      // uruchomienie dash'a
@@ -49,7 +66,13 @@ public class PlayerMovement : MonoBehaviour
             StartCoroutine(Dash());
         }
 
-        Flip();        //
+        Flip();        
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("Wykrywam");
+        Player.SetBool("Falling", false);
     }
 
     private void FixedUpdate()              // Update który może odpalać się częściej by przeliczać fizykę
@@ -64,6 +87,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsGrounded()                 //sprawdzanie czy pozycja groundCheck jest w małym promieniu od groundLayer (czyli czy obiekt jest na ziemi)
     {
+        
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
     }
 
@@ -71,6 +95,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
+            //Player.SetBool("Running", true);
             Vector3 localScale = transform.localScale;
             isFacingRight = !isFacingRight;
             localScale.x *= -1f;
