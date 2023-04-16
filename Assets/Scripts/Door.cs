@@ -5,6 +5,7 @@ using UnityEngine;
 public class Door : MonoBehaviour
 {
     public bool IsOpen;
+    public bool IsOpened;
     public int KnocksToOpen = 1;
 
     private Animator DoorsAnim;
@@ -15,6 +16,7 @@ public class Door : MonoBehaviour
     {
         DoorsAnim = GetComponent<Animator>();
         DoorColl = GetComponent<Collider2D>();
+        IsOpened = false;
     }
 
     public void Open()
@@ -23,6 +25,7 @@ public class Door : MonoBehaviour
         if(!IsOpen && knocks >= KnocksToOpen)
         {
             SetState(true);
+            IsOpened = true;
         }
     }
 
@@ -47,7 +50,7 @@ public class Door : MonoBehaviour
         }
     }
 
-    void SetState(bool open)
+    public void SetState(bool open)
     {
         IsOpen = open;
         DoorsAnim.SetBool("Open", open);
