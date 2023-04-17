@@ -11,6 +11,15 @@ public class PlayerMovement : MonoBehaviour
     private bool isFacingRight = true;   // bool w którym zawarta jest informacja o kierunku zwrócenia modelu
     List<Collider2D> inColliders = new List<Collider2D>(); //Lista Obiektów kolidujących. Dodał Kamil
 
+    private bool isWallSliding;
+    private float wallSlidingSpeed = 0.2f;
+
+    private bool isWallJumping;
+    private float wallJumpingDirection;
+    private float wallJumpingTime= 0.1f;
+    private float wallJumpingCounter;
+    private float wallJumpingDuration = 0.4f;
+    private Vector2 wallJumpingPower = new Vector2(8f, 16f);
 
     private bool canDash = true;         // wskaźnik który zezwala znów wykonać dash
     private bool isDashing;              // wskaźnik, by określić czy obiekt jest w trakcie dasha (np by nie odnosił obrażeń)
@@ -22,6 +31,8 @@ public class PlayerMovement : MonoBehaviour
                                                        // silnikowi fizycznemu
     [SerializeField] private Transform groundCheck;    // pozycja obiektu (pustego) który sprawdza czy obiekt jest na podłożu
     [SerializeField] private LayerMask groundLayer;    //ustalenie które obiekty na mapie są podłożem
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask wallLayer;
     [SerializeField] private TrailRenderer tr;         //komponent, który pozwoli dodać do dasha efekt smugi za postacią
 
     [Header("PublicGameObject")]
@@ -66,7 +77,14 @@ public class PlayerMovement : MonoBehaviour
             StartCoroutine(Dash());
         }
 
-        Flip();        
+        WallSlide();
+        WallJump();
+
+        if (!isWallJumping)
+        {
+             Flip();        
+        }
+
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -81,13 +99,73 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);      //... ale gdy nie dashuje, porusza się w podanym kierunku z prędkością speed
+        if(!isWallJumping)
+        {
+            rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);      //... ale gdy nie dashuje, porusza się w podanym kierunku z prędkością speed
+        }
+
     }
 
     private bool IsGrounded()                 //sprawdzanie czy pozycja groundCheck jest w małym promieniu od groundLayer (czyli czy obiekt jest na ziemi)
     {
         
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    }
+
+    private bool IsWalled()
+    {
+        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
+    }
+
+    private void WallSlide()
+    {
+        if (IsWalled() && !IsGrounded() && horizontal != 0f)
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
+    private void WallJump()
+    {
+        if (isWallSliding)
+        {
+            isWallJumping = false;
+            wallJumpingDirection = -transform.localScale.x;
+            wallJumpingCounter = wallJumpingTime;
+
+            CancelInvoke(nameof(StopWallJumping));
+        }
+        else
+        {
+            wallJumpingCounter -= Time.deltaTime;
+        }
+
+        if (Input.GetButtonDown("Jump") && wallJumpingCounter > 0f)
+        {
+            isWallJumping = true;
+            rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
+            wallJumpingCounter = 0f;
+
+            if (transform.localScale.x != wallJumpingDirection)
+            {
+                isFacingRight = !isFacingRight;
+                Vector3 localScale = transform.localScale;
+                localScale.x *= -1f;
+                transform.localScale = localScale;
+            }
+
+            Invoke(nameof(StopWallJumping), wallJumpingDuration);
+        }
+    }
+
+    private void StopWallJumping()
+    {
+        isWallJumping = false;
     }
 
     private void Flip()         // odwrócenie modelu w lewo, gdy ruszamy się w lewo
