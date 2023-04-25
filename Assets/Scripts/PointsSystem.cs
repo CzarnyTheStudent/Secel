@@ -7,7 +7,7 @@ public class PointsSystem : MonoBehaviour
 {
     public Text ScoreText;
     private int Score;
-    public Collider2D Target;
+    //public Collider2D Target;
     
     void Start()
     {
@@ -15,13 +15,12 @@ public class PointsSystem : MonoBehaviour
         ScoreText.text = "Score: " + Score;
     }
 
-    private void OnTriggerEnter(Collider2D Target)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        //if (Target.tag == "Point")
-        if(true)
+        if (other.tag == "Point")
         {
             Score++;
-            Destroy(Target.gameObject);
+            Destroy(other.gameObject);
             ScoreText.text = "Score: " + Score;
         }
         
