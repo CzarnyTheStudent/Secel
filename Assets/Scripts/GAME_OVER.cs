@@ -28,6 +28,7 @@ public class GAME_OVER : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
-            GameOver.SetActive(true);   
+            GameOver.SetActive(true);
+            TimerScript.IsTimerOn = false;
     }
 }
