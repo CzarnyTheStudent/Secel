@@ -1,69 +1,194 @@
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
+using UnityEditor;
 
-[ExecuteInEditMode]
 public class WaypointPath : MonoBehaviour
 {
-    [SerializeField] private bool use3DTerrain = true;
-    [SerializeField] private GameObject waypointPrefab;
-    [SerializeField] private List<Vector3> waypointPositions = new List<Vector3>();
+    public Color lineColor = Color.yellow;
+    public Color waypointColor = Color.white;
+    public Color lineBetweenWaypointsColor = Color.red;
+    public float radius = 0.7f;
+    public bool isClosed = false;
+    public Transform[] waypoints;
 
-    private bool creatingWaypoints;
-    private Camera sceneCamera;
+    [Header("Move on Path")]
+    public float moveSpeed = 5f;
+    public bool loop = false;
+    [SerializeField]private int currentWaypointIndex = -1;
+
+
+    private void OnDrawGizmos()
+    {
+        if (waypoints == null || waypoints.Length < 2)
+        {
+            return;
+        }
+
+        int count = waypoints.Length;
+
+        if (count > 1)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 current = waypoints[i].position;
+                Vector3 previous = Vector3.zero;
+
+                if (i > 0)
+                {
+                    previous = waypoints[i - 1].position;
+                }
+                else if (i == 0 && isClosed)
+                {
+                    previous = waypoints[count - 1].position;
+                }
+
+                if (previous != Vector3.zero)
+                {
+                    Gizmos.color = lineBetweenWaypointsColor;
+                    Gizmos.DrawLine(previous, current);
+                }
+
+                Gizmos.color = waypointColor;
+                Gizmos.DrawWireSphere(current, radius);
+            }
+
+            if (isClosed)
+            {
+                Vector3 current = waypoints[0].position;
+                Vector3 last = waypoints[count - 1].position;
+
+                Gizmos.color = lineBetweenWaypointsColor;
+                Gizmos.DrawLine(last, current);
+            }
+
+            Gizmos.color = lineColor;
+        }
+    }
+
+    private void OnValidate()
+    {
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            waypoints[i].name = "Waypoint " + (i + 1);
+        }
+    }
+
+
+    public void AddWaypoint()
+    {
+        if (!EditorApplication.isPlaying)
+        {
+            Vector3 position = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition).origin;
+            GameObject waypointObject = new GameObject("Waypoint " + (waypoints.Length)); 
+            waypointObject.transform.position = position;
+
+            Transform[] newWaypoints = new Transform[waypoints.Length + 1];
+            for (int i = 0; i < waypoints.Length; i++)
+            {
+                newWaypoints[i] = waypoints[i];
+            }
+
+            newWaypoints[waypoints.Length] = waypointObject.transform;
+
+            waypoints = newWaypoints;
+        }
+    }
+
+    public void RemoveWaypoint()
+    {
+        if (!EditorApplication.isPlaying)
+        {
+            if (waypoints.Length > 0)
+            {
+                Transform[] newWaypoints = new Transform[waypoints.Length - 1];
+                for (int i = 0; i < newWaypoints.Length; i++)
+                {
+                    newWaypoints[i] = waypoints[i];
+                }
+
+                DestroyImmediate(waypoints[waypoints.Length - 1].gameObject);
+                waypoints = newWaypoints;
+            }
+        }
+    }
+
+    
+    private void OnDrawGizmosSelected()
+    {
+        Handles.color = Color.white;
+
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            Vector3 position = waypoints[i].position;
+            EditorGUI.BeginChangeCheck();
+            position = Handles.PositionHandle(position, Quaternion.identity);
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(waypoints[i], "Move Waypoint");
+                waypoints[i].position = position;
+            }
+        }
+    }
 
     private void Start()
     {
-        sceneCamera = SceneView.lastActiveSceneView.camera;
+      
     }
 
     private void Update()
     {
-        if (creatingWaypoints && Event.current.type == EventType.MouseDown && Event.current.button == 2)
+        if (Input.GetButtonDown("AddWaypoint"))
         {
-            var position = GetMousePositionInTerrain();
-            CreateWaypoint(position);
+            AddWaypoint();
+        }
+        else if (Input.GetButtonDown("RemoveWaypoint"))
+        {
+            RemoveWaypoint();
         }
 
-        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.LeftShift)
+        
+        if (waypoints != null && waypoints.Length > 1)
         {
-            creatingWaypoints = true;
-        }
-        else if (Event.current.type == EventType.KeyUp && Event.current.keyCode == KeyCode.LeftShift)
-        {
-            creatingWaypoints = false;
+            Transform currentWaypoint = waypoints[currentWaypointIndex];
+            Debug.Log(waypoints[currentWaypointIndex]);
+            
+         
+            Transform nextWaypoint = waypoints[(currentWaypointIndex + 1) % waypoints.Length];
+            float distanceToNextWaypoint = Vector3.Distance(transform.position, currentWaypoint.position);
+
+
+            // If object is close enough to the next waypoint, move to the next waypoint
+            if (distanceToNextWaypoint < radius)
+            {
+                
+                currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+                currentWaypoint = waypoints[(currentWaypointIndex + 1) % waypoints.Length];  //waypoints[currentWaypointIndex];
+                                                                           //nextWaypoint
+                transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.position, moveSpeed * Time.deltaTime);
+
+                if (!isClosed && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
+                {
+                    // Reverse the array of waypoints
+                    System.Array.Reverse(waypoints);
+
+                    // Reset the current waypoint index
+                    currentWaypointIndex = 0;
+
+                    // Set the transform position to the second waypoint
+                    transform.position = waypoints[currentWaypointIndex].position;
+                }
+            }
+
+            // Move object towards the next waypoint
+            transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.position, moveSpeed * Time.deltaTime);
+
+            // If loop is disabled and object has reached the last waypoint, stop moving
+            if (!loop && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
+            {
+                enabled = false;
+            }
         }
     }
 
-    private Vector3 GetMousePositionInTerrain()
-    {
-        Vector3 position = Vector3.zero;
-        Ray ray = sceneCamera.ScreenPointToRay(Event.current.mousePosition);
-        RaycastHit hit;
-        if (use3DTerrain && Physics.Raycast(ray, out hit))
-        {
-            position = hit.point;
-        }
-        else if (!use3DTerrain && Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Terrain")))
-        {
-            position = hit.point;
-        }
-        return position;
-    }
-
-    private void CreateWaypoint(Vector3 position)
-    {
-        var waypoint = Instantiate(waypointPrefab, position, Quaternion.identity, transform);
-        waypoint.name = "Waypoint " + (waypointPositions.Count + 1);
-        waypointPositions.Add(position);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Handles.color = Color.red;
-        foreach (var position in waypointPositions)
-        {
-            Handles.DrawSolidDisc(position, Vector3.up, 0.5f);
-        }
-    }
+   
 }
+//MADE BY CZARNY_ No thanks to me :0
