@@ -22,7 +22,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 wallJumpingPower = new Vector2(8f, 16f);
 
     private bool canDash = true;         // wskaźnik który zezwala znów wykonać dash
-    private bool isDashing;              // wskaźnik, by określić czy obiekt jest w trakcie dasha (np by nie odnosił obrażeń)
+    public bool isDashing;              // wskaźnik, by określić czy obiekt jest w trakcie dasha (np by nie odnosił obrażeń)
     private float dashingPower = 24f;    // odległość na jaką odbywa się dash
     private float dashingTime = 0.2f;    // czas ile trwa dash
     private float dashingCooldown = 1f;  // co ile można wykonać dash
@@ -34,9 +34,15 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform wallCheck;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private TrailRenderer tr;         //komponent, który pozwoli dodać do dasha efekt smugi za postacią
+    [SerializeField] private Collider2D Col2D;
 
     [Header("PublicGameObject")]
     public Animator Player;
+
+    private void Start()
+    {
+        Col2D = GetComponent<Collider2D>();
+    }
 
     private void Update()
     {
@@ -180,10 +186,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private IEnumerator Dash()                  // corutine czyli operacja rozłożona na wiele klatek
+    public IEnumerator Dash()                  // corutine czyli operacja rozłożona na wiele klatek
     {
         canDash = false;                                                       // gdy dashuje nie może deszować znowu
-        isDashing = true;                                                      
+        isDashing = true;
+        Col2D.enabled;
         float originalGravity = rb.gravityScale;                               //przechowanie grawitacji sprzed dasha
         rb.gravityScale = 0f;                                                  //ustawienie grawitacji na czas dasha na 0
         rb.velocity = new Vector2(transform.localScale.x * dashingPower, 0f);  //ustawienie prędkości dasha na ustawioną noc
