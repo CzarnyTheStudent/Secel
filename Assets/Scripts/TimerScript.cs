@@ -1,0 +1,34 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class TimerScript : MonoBehaviour
+{
+    public float TimePassed = 0f;
+    static public bool IsTimerOn = false;
+
+    public Text TimerTxt;
+   
+    void Start()
+    {
+        IsTimerOn = true;
+    }
+
+    void Update()
+    {
+        if(IsTimerOn)
+        {
+            updateTimer(TimePassed);
+        }
+    }
+
+    void updateTimer(float currentTime)
+    {
+        TimePassed += Time.deltaTime;
+        string s = currentTime.ToString("0");
+        
+        TimerTxt.text = "Time: " + s +" seconds";
+    }
+
+}
