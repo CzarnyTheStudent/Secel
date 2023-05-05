@@ -34,14 +34,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform wallCheck;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private TrailRenderer tr;         //komponent, który pozwoli dodać do dasha efekt smugi za postacią
-    [SerializeField] private Collider2D Col2D;
 
     [Header("PublicGameObject")]
     public Animator Player;
 
     private void Start()
     {
-        Col2D = GetComponent<Collider2D>();
+
     }
 
     private void Update()
@@ -190,7 +189,7 @@ public class PlayerMovement : MonoBehaviour
     {
         canDash = false;                                                       // gdy dashuje nie może deszować znowu
         isDashing = true;
-        Col2D.enabled;
+        
         float originalGravity = rb.gravityScale;                               //przechowanie grawitacji sprzed dasha
         rb.gravityScale = 0f;                                                  //ustawienie grawitacji na czas dasha na 0
         rb.velocity = new Vector2(transform.localScale.x * dashingPower, 0f);  //ustawienie prędkości dasha na ustawioną noc

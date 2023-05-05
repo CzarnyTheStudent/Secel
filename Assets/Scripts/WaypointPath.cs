@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UIElements;
 
 public class WaypointPath : MonoBehaviour
 {
-    public Color lineColor = Color.yellow;
+    public enum PathMode { Mode2D, Mode3D };    // tryby 2D i 3D
+    public PathMode pathMode;                  // bie¿¹cy tryb œcie¿ki
+
+    //public Color lineColor = Color.yellow;
     public Color waypointColor = Color.white;
     public Color lineBetweenWaypointsColor = Color.red;
     public float radius = 0.7f;
@@ -13,8 +17,7 @@ public class WaypointPath : MonoBehaviour
     [Header("Move on Path")]
     public float moveSpeed = 5f;
     public bool loop = false;
-    [SerializeField]private int currentWaypointIndex = -1;
-
+    [SerializeField] private int currentWaypointIndex = -1;
 
     private void OnDrawGizmos()
     {
@@ -60,7 +63,7 @@ public class WaypointPath : MonoBehaviour
                 Gizmos.DrawLine(last, current);
             }
 
-            Gizmos.color = lineColor;
+            //Gizmos.color = lineColor;
         }
     }
 
@@ -72,13 +75,13 @@ public class WaypointPath : MonoBehaviour
         }
     }
 
-
     public void AddWaypoint()
     {
         if (!EditorApplication.isPlaying)
         {
             Vector3 position = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition).origin;
-            GameObject waypointObject = new GameObject("Waypoint " + (waypoints.Length)); 
+            GameObject waypointObject = new GameObject("Waypoint " + (waypoints.Length));
+            if (pathMode == PathMode.Mode2D) position.z = 0;   //ustawia pozycjê z na 0 dla trybu 2D
             waypointObject.transform.position = position;
 
             Transform[] newWaypoints = new Transform[waypoints.Length + 1];
@@ -126,9 +129,18 @@ public class WaypointPath : MonoBehaviour
                 Undo.RecordObject(waypoints[i], "Move Waypoint");
                 waypoints[i].position = position;
             }
+
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = Color.red;
+        style.alignment = TextAnchor.MiddleCenter;
+        Handles.Label(position, "Waypoint " + i, style);
+
+
         }
+
     }
 
+     
     private void Start()
     {
       
