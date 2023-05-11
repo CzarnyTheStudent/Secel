@@ -15,9 +15,9 @@ public class WaypointPath : MonoBehaviour
     public Transform[] waypoints;
 
     [Header("Move on Path")]
-    public float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private int currentWaypointIndex = 0;
     public bool loop = false;
-    [SerializeField] private int currentWaypointIndex = -1;
 
     private void OnDrawGizmos()
     {
@@ -71,7 +71,7 @@ public class WaypointPath : MonoBehaviour
     {
         for (int i = 0; i < waypoints.Length; i++)
         {
-            waypoints[i].name = "Waypoint " + (i + 1);
+            waypoints[i].name = "Waypoint " + (i);
         }
     }
 
@@ -79,8 +79,9 @@ public class WaypointPath : MonoBehaviour
     {
         if (!EditorApplication.isPlaying)
         {
+           
             Vector3 position = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition).origin;
-            GameObject waypointObject = new GameObject("Waypoint " + (waypoints.Length));
+            GameObject waypointObject = new GameObject("Waypoint " + (waypoints.Length)); //
             if (pathMode == PathMode.Mode2D) position.z = 0;   //ustawia pozycjê z na 0 dla trybu 2D
             waypointObject.transform.position = position;
 
@@ -93,6 +94,7 @@ public class WaypointPath : MonoBehaviour
             newWaypoints[waypoints.Length] = waypointObject.transform;
 
             waypoints = newWaypoints;
+            
         }
     }
 
@@ -118,7 +120,6 @@ public class WaypointPath : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Handles.color = Color.white;
-
         for (int i = 0; i < waypoints.Length; i++)
         {
             Vector3 position = waypoints[i].position;
@@ -129,13 +130,10 @@ public class WaypointPath : MonoBehaviour
                 Undo.RecordObject(waypoints[i], "Move Waypoint");
                 waypoints[i].position = position;
             }
-
         GUIStyle style = new GUIStyle();
-        style.normal.textColor = Color.red;
+        style.normal.textColor = Color.yellow;
         style.alignment = TextAnchor.MiddleCenter;
         Handles.Label(position, "Waypoint " + i, style);
-
-
         }
 
     }
@@ -143,7 +141,11 @@ public class WaypointPath : MonoBehaviour
      
     private void Start()
     {
-      
+        if (waypoints != null && waypoints.Length > 1)
+        {
+            currentWaypointIndex = 0;
+            transform.position = waypoints[currentWaypointIndex].position;
+        }
     }
 
     private void Update()
@@ -157,25 +159,22 @@ public class WaypointPath : MonoBehaviour
             RemoveWaypoint();
         }
 
-        
+
         if (waypoints != null && waypoints.Length > 1)
         {
-            Transform currentWaypoint = waypoints[currentWaypointIndex];
-            Debug.Log(waypoints[currentWaypointIndex]);
+            transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex].position, moveSpeed * Time.deltaTime);
             
-         
-            Transform nextWaypoint = waypoints[(currentWaypointIndex + 1) % waypoints.Length];
-            float distanceToNextWaypoint = Vector3.Distance(transform.position, currentWaypoint.position);
+            Debug.Log(waypoints[currentWaypointIndex]);
+            float distanceToNextWaypoint = Vector3.Distance(transform.position, waypoints[currentWaypointIndex].position);
 
 
             // If object is close enough to the next waypoint, move to the next waypoint
             if (distanceToNextWaypoint < radius)
             {
-                
+
                 currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
-                currentWaypoint = waypoints[(currentWaypointIndex + 1) % waypoints.Length];  //waypoints[currentWaypointIndex];
-                                                                           //nextWaypoint
-                transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.position, moveSpeed * Time.deltaTime);
+                waypoints[currentWaypointIndex] = waypoints[(currentWaypointIndex ) % waypoints.Length];  //waypoints[currentWaypointIndex];
+                                                                                             //nextWaypoint
 
                 if (!isClosed && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
                 {
@@ -191,7 +190,7 @@ public class WaypointPath : MonoBehaviour
             }
 
             // Move object towards the next waypoint
-            transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.position, moveSpeed * Time.deltaTime);
+            //transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.position, moveSpeed * Time.deltaTime);
 
             // If loop is disabled and object has reached the last waypoint, stop moving
             if (!loop && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
@@ -201,6 +200,7 @@ public class WaypointPath : MonoBehaviour
         }
     }
 
-   
+
+
 }
 //MADE BY CZARNY_ No thanks to me :0

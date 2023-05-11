@@ -43,7 +43,7 @@ public class WaypointPathEditor : Editor
 
         if (!EditorApplication.isPlaying)
         {
-            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.W)
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.E)
             {
                 myScript.AddWaypoint();
                 e.Use();
