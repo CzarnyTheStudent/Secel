@@ -8,18 +8,23 @@ public class DamageOnColPlayer : MonoBehaviour
 {
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(!collision.gameObject.GetComponent<PlayerMovement>().isDashing)
+       
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!collision.gameObject.GetComponent<PlayerMovement>().isDashing)
         {
-          if (collision.gameObject.CompareTag("Player"))
-          {
-            collision.gameObject.GetComponent<PlayerHealth>().TakeDamage();
-          }
+            if (collision.gameObject.CompareTag("Player"))
+            {
+                collision.gameObject.GetComponent<PlayerHealth>().TakeDamage();
+            }
         }
 
-        
+
         if (collision.gameObject.GetComponent<PlayerMovement>().isDashing)
         {
             Destroy(gameObject);
-        } 
+        }
     }
 }

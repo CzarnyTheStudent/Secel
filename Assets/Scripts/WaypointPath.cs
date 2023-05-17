@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEditor;
-using UnityEngine.UIElements;
 
 public class WaypointPath : MonoBehaviour
 {
@@ -18,6 +16,8 @@ public class WaypointPath : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private int currentWaypointIndex = 0;
     public bool loop = false;
+
+#if UNITY_EDITOR
 
     private void OnDrawGizmos()
     {
@@ -66,6 +66,8 @@ public class WaypointPath : MonoBehaviour
             //Gizmos.color = lineColor;
         }
     }
+#endif
+
 
     private void OnValidate()
     {
@@ -75,48 +77,9 @@ public class WaypointPath : MonoBehaviour
         }
     }
 
-    public void AddWaypoint()
-    {
-        if (!EditorApplication.isPlaying)
-        {
-           
-            Vector3 position = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition).origin;
-            GameObject waypointObject = new GameObject("Waypoint " + (waypoints.Length)); //
-            if (pathMode == PathMode.Mode2D) position.z = 0;   //ustawia pozycjê z na 0 dla trybu 2D
-            waypointObject.transform.position = position;
 
-            Transform[] newWaypoints = new Transform[waypoints.Length + 1];
-            for (int i = 0; i < waypoints.Length; i++)
-            {
-                newWaypoints[i] = waypoints[i];
-            }
 
-            newWaypoints[waypoints.Length] = waypointObject.transform;
-
-            waypoints = newWaypoints;
-            
-        }
-    }
-
-    public void RemoveWaypoint()
-    {
-        if (!EditorApplication.isPlaying)
-        {
-            if (waypoints.Length > 0)
-            {
-                Transform[] newWaypoints = new Transform[waypoints.Length - 1];
-                for (int i = 0; i < newWaypoints.Length; i++)
-                {
-                    newWaypoints[i] = waypoints[i];
-                }
-
-                DestroyImmediate(waypoints[waypoints.Length - 1].gameObject);
-                waypoints = newWaypoints;
-            }
-        }
-    }
-
-    
+    /*
     private void OnDrawGizmosSelected()
     {
         Handles.color = Color.white;
@@ -130,15 +93,15 @@ public class WaypointPath : MonoBehaviour
                 Undo.RecordObject(waypoints[i], "Move Waypoint");
                 waypoints[i].position = position;
             }
-        GUIStyle style = new GUIStyle();
-        style.normal.textColor = Color.yellow;
-        style.alignment = TextAnchor.MiddleCenter;
-        Handles.Label(position, "Waypoint " + i, style);
+            GUIStyle style = new GUIStyle();
+            style.normal.textColor = Color.yellow;
+            style.alignment = TextAnchor.MiddleCenter;
+            Handles.Label(position, "Waypoint " + i, style);
         }
 
     }
+    */
 
-     
     private void Start()
     {
         if (waypoints != null && waypoints.Length > 1)
@@ -150,14 +113,7 @@ public class WaypointPath : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("AddWaypoint"))
-        {
-            AddWaypoint();
-        }
-        else if (Input.GetButtonDown("RemoveWaypoint"))
-        {
-            RemoveWaypoint();
-        }
+       
 
 
         if (waypoints != null && waypoints.Length > 1)
