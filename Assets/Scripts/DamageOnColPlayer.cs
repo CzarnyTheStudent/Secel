@@ -1,16 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class DamageOnColPlayer : MonoBehaviour
 {
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-       
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.gameObject.GetComponent<PlayerMovement>().isDashing)
@@ -24,7 +15,8 @@ public class DamageOnColPlayer : MonoBehaviour
 
         if (collision.gameObject.GetComponent<PlayerMovement>().isDashing)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+            
         }
     }
 }

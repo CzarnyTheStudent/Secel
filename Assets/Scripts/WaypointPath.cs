@@ -2,20 +2,20 @@ using UnityEngine;
 
 public class WaypointPath : MonoBehaviour
 {
-    public enum PathMode { Mode2D, Mode3D };    // tryby 2D i 3D
-    public PathMode pathMode;                  // bie¿¹cy tryb œcie¿ki
+    public enum PathMode { Mode2D, Mode3D };    // mode 2D or 3D
+    public PathMode pathMode;                  // current mode path
 
     //public Color lineColor = Color.yellow;
     public Color waypointColor = Color.white;
     public Color lineBetweenWaypointsColor = Color.red;
     public float radius = 0.7f;
-    public bool isClosed = false;
+    public bool isClosed;
     public Transform[] waypoints;
 
     [Header("Move on Path")]
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private int currentWaypointIndex = 0;
-    public bool loop = false;
+    [SerializeField] private int currentWaypointIndex;
+    public bool loop;
 
 #if UNITY_EDITOR
 
@@ -104,55 +104,52 @@ public class WaypointPath : MonoBehaviour
 
     private void Start()
     {
-        if (waypoints != null && waypoints.Length > 1)
-        {
-            currentWaypointIndex = 0;
-            transform.position = waypoints[currentWaypointIndex].position;
-        }
+        //if (waypoints != null && waypoints.Length > 1)
+        if (waypoints is not { Length: > 1 }) return;
+        currentWaypointIndex = 0;
+        transform.position = waypoints[currentWaypointIndex].position;
     }
 
     private void Update()
     {
-       
+        //if (waypoints != null && waypoints.Length > 1)
+        if (waypoints is not { Length: > 1 }) return;
+        var position = transform.position;
+        position = Vector3.MoveTowards(position, waypoints[currentWaypointIndex].position, moveSpeed * Time.deltaTime);
+        transform.position = position;
 
-
-        if (waypoints != null && waypoints.Length > 1)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex].position, moveSpeed * Time.deltaTime);
             
-            Debug.Log(waypoints[currentWaypointIndex]);
-            float distanceToNextWaypoint = Vector3.Distance(transform.position, waypoints[currentWaypointIndex].position);
+        float distanceToNextWaypoint = Vector3.Distance(position, waypoints[currentWaypointIndex].position);
 
 
-            // If object is close enough to the next waypoint, move to the next waypoint
-            if (distanceToNextWaypoint < radius)
+        // If object is close enough to the next waypoint, move to the next waypoint
+        if (distanceToNextWaypoint < radius)
+        {
+
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            waypoints[currentWaypointIndex] = waypoints[(currentWaypointIndex ) % waypoints.Length];  //waypoints[currentWaypointIndex];
+            //nextWaypoint
+
+            if (!isClosed && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
             {
+                // Reverse the array of waypoints
+                System.Array.Reverse(waypoints);
 
-                currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
-                waypoints[currentWaypointIndex] = waypoints[(currentWaypointIndex ) % waypoints.Length];  //waypoints[currentWaypointIndex];
-                                                                                             //nextWaypoint
+                // Reset the current waypoint index
+                currentWaypointIndex = 0;
 
-                if (!isClosed && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
-                {
-                    // Reverse the array of waypoints
-                    System.Array.Reverse(waypoints);
-
-                    // Reset the current waypoint index
-                    currentWaypointIndex = 0;
-
-                    // Set the transform position to the second waypoint
-                    transform.position = waypoints[currentWaypointIndex].position;
-                }
+                // Set the transform position to the second waypoint
+                transform.position = waypoints[currentWaypointIndex].position;
             }
+        }
 
-            // Move object towards the next waypoint
-            //transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.position, moveSpeed * Time.deltaTime);
+        // Move object towards the next waypoint
+        //transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.position, moveSpeed * Time.deltaTime);
 
-            // If loop is disabled and object has reached the last waypoint, stop moving
-            if (!loop && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
-            {
-                enabled = false;
-            }
+        // If loop is disabled and object has reached the last waypoint, stop moving
+        if (!loop && currentWaypointIndex == waypoints.Length - 1 && distanceToNextWaypoint < radius)
+        {
+            enabled = false;
         }
     }
 
