@@ -9,6 +9,8 @@ public class GAME_OVER : MonoBehaviour
     public Door _door;
     public GameObject GameOver;
 
+    [SerializeField] GameObject gameOverMenu;
+
     private void Start()
     {
         door = GetComponent<Collider2D>();  
@@ -30,5 +32,8 @@ public class GAME_OVER : MonoBehaviour
     {
             GameOver.SetActive(true);
             TimerScript.IsTimerOn = false;
+
+            gameOverMenu.SetActive(true);
+            Time.timeScale = 0f;
     }
 }

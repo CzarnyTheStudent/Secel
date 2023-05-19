@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class TimerScript : MonoBehaviour
 {
-    public float TimePassed = 0f;
+    static public float TimePassed = 0f;
     static public bool IsTimerOn = false;
 
     public Text TimerTxt;

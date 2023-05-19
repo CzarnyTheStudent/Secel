@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class PointsSystem : MonoBehaviour
 {
     public Text ScoreText;
-    private int Score;
+    static public int Score;
     //public Collider2D Target;
     
     void Start()
