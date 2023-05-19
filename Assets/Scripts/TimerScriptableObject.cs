@@ -2,33 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using System;
 
-//[CreateAssetMenu(fileName = "DeathCount", menuName = "ScriptableObjects/DeathCounter")]
+[CreateAssetMenu(fileName = "TimerCount", menuName = "ScriptableObjects/TimerCount")]
 public class TimerScriptableObject : ScriptableObject
 {
-    public float TimerSaved;
-
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        TimerSaved += Time.deltaTime;
-    }
-
-    public void Add1ToTimer()
-    {
-        TimerSaved++;
-    }
-
-    private void OnDisable()
-    {
-        TimerSaved = 0;
-    }
+    public float timer;
 }

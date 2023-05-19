@@ -190,7 +190,7 @@ public class PlayerMovement : MonoBehaviour
     {
         canDash = false;                                                       // gdy dashuje nie może deszować znowu
         isDashing = true;
-        Col2D.enabled;
+        //Col2D.enabled;
         float originalGravity = rb.gravityScale;                               //przechowanie grawitacji sprzed dasha
         rb.gravityScale = 0f;                                                  //ustawienie grawitacji na czas dasha na 0
         rb.velocity = new Vector2(transform.localScale.x * dashingPower, 0f);  //ustawienie prędkości dasha na ustawioną noc
