@@ -56,9 +56,9 @@ public class Landmine : MonoBehaviour
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
         foreach (Collider2D nearbyObject in colliders)
         {
-            if (nearbyObject.tag == "Player")
+            if (nearbyObject.CompareTag("Player"))
             {
-            nearbyObject.gameObject.GetComponent<PlayerHealth>().TakeDamage();
+                nearbyObject.gameObject.GetComponent<PlayerHealth>().TakeDamage();
             }
             Rigidbody2D rb = nearbyObject.GetComponent<Rigidbody2D>();
             if (rb != null)
