@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using LevelStuff;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -38,6 +39,10 @@ public class PlayerMovement : MonoBehaviour
     [Header("PublicGameObject")]
     public Animator Player;
 
+    private static readonly int _Falling = Animator.StringToHash("Falling");
+    private static readonly int Jump = Animator.StringToHash("Jump");
+    private static readonly int Running = Animator.StringToHash("Running");
+
     private void Start()
     {
 
@@ -50,24 +55,24 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        Player.SetBool("Running", false);
+        Player.SetBool(Running, false);
 
         horizontal = Input.GetAxisRaw("Horizontal");    // pobranie kierunku ruchu
 
         if (Input.GetButton("Horizontal"))   // Jeżeli klikasz A lub D To postać odpala animacje biegu
         {
-            Player.SetBool("Running", true);
+            Player.SetBool(Running, true);
         }
 
         if (Input.GetButtonDown("Jump") && IsGrounded())    // gdy postać jest na ziemi i klikniemy przycisk skoku...
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);   // ... fizyka naszej postaci przyjmie nowy ruch, który dokłada ruch do góry
-            Player.SetBool("Jump", true); //Skacze
+            Player.SetBool(Jump, true); //Skacze
         }
 
         if (rb.velocity.y < 0f)
         {
-            Player.SetBool("Jump", false);
+            Player.SetBool(Jump, false);
             Player.SetBool("Falling", true);
         }
 
@@ -94,7 +99,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Player.SetBool("Falling", false);
+        Player.SetBool(_Falling, false);
     }
 
     private void FixedUpdate()              // Update który może odpalać się częściej by przeliczać fizykę
@@ -164,7 +169,7 @@ public class PlayerMovement : MonoBehaviour
                 transform.localScale = localScale;
             }
 
-            Invoke(nameof(StopWallJumping), wallJumpingDuration);
+            Invoke(nameof(StopWallJumping), wallJumpingDuration); //TODO: na korutyne
         }
     }
 
@@ -204,12 +209,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        inColliders.Add(col);  // Przy kontakcie dodaje do listy
-        inColliders.ForEach(n => n.SendMessage("Use", SendMessageOptions.DontRequireReceiver));
-    }
-
-    private void OnTriggerExit2D(Collider2D col)
-    {
-        inColliders.Remove(col);  // Przy wyjściu odejmuje od listy
+        IUsable usableObject = col.gameObject.GetComponent<IUsable>();
+        if (usableObject != null)
+        {
+            usableObject.Use();
+        }
     }
 }
