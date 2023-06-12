@@ -31,9 +31,6 @@ public class GAME_OVER : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collider)
     {
             GameOver.SetActive(true);
-            TimerScript.IsTimerOn = false;
-
-            gameOverMenu.SetActive(true);
-            Time.timeScale = 0f;
+          //  TimerScript.IsTimerOn = false;
     }
 }

@@ -15,8 +15,8 @@ public class DamageOnColPlayer : MonoBehaviour
 
         if (collision.gameObject.GetComponent<PlayerMovement>().isDashing)
         {
-            gameObject.SetActive(false);
-            
+            //gameObject.SetActive(false);
+            Destroy(gameObject);
         }
     }
 }

@@ -2,33 +2,73 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using System;
 
 public class TimerScript : MonoBehaviour
 {
-    static public float TimePassed = 0f;
-    static public bool IsTimerOn = false;
+    public TimerScriptableObject timerSO;
+    public TextMeshProUGUI timerSOText;
+    public float timerSOfloat;
 
-    public Text TimerTxt;
-   
+    public static Action MinuteChanged; // sekundy
+    public static Action HourChanged;   // minuty
+
+    public static int Minute { get; private set; }
+    public static int Hour { get; private set; }
+
+    public float minuteRealTime = 1f;
+
     void Start()
     {
-        IsTimerOn = true;
+        timerSO.timer = minuteRealTime;
+
     }
+
 
     void Update()
     {
-        if(IsTimerOn)
+
+        timerSO.timer -= Time.deltaTime;
+
+        if (timerSO.timer <= 0)
         {
-            updateTimer(TimePassed);
+            Minute++;
+            MinuteChanged?.Invoke();
+
+
+            if (Minute >= 60)
+            {
+                Hour++;
+                Minute = 0;
+                HourChanged?.Invoke();
+
+            }
+
+            timerSO.timer = minuteRealTime;
         }
+
     }
 
-    void updateTimer(float currentTime)
+    private void OnEnable()
     {
-        TimePassed += Time.deltaTime;
-        string s = currentTime.ToString("0");
-        
-        TimerTxt.text = "Time: " + s +" seconds";
+
+        MinuteChanged += UpdateTime;
+        HourChanged += UpdateTime;
+
     }
+
+    private void OnDisable()
+    {
+        MinuteChanged -= UpdateTime;
+        HourChanged -= UpdateTime;
+    }
+
+    void UpdateTime()
+    {
+        timerSOText.text = $"{Hour:00}:{Minute:00} AM";
+    }
+
+
 
 }
