@@ -16,7 +16,7 @@ public class PlayerHealth : MonoBehaviour
 
     private void Start()
     {
-        DeathCount = deathCounter.DeathCountSave;
+        DeathCount = deathCounter.deathCountSave;
         DeathCountTxt.SetText("Deaths: " + DeathCount);
     }
 

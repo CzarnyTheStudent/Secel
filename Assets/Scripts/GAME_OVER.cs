@@ -9,6 +9,8 @@ public class GAME_OVER : MonoBehaviour
     public Door _door;
     public GameObject GameOver;
 
+    [SerializeField] GameObject gameOverMenu;
+
     private void Start()
     {
         door = GetComponent<Collider2D>();  
