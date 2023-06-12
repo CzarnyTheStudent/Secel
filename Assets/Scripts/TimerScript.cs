@@ -15,14 +15,12 @@ public class TimerScript : MonoBehaviour
     public TextMeshProUGUI timerSOText;
     public float timerSOfloat;
 
-    public Text TimerTxt;
 
+    private static Action MinuteChanged; // sekundy 
+    private static Action HourChanged;   // minuty 
 
-    public static Action MinuteChanged; // sekundy 
-    public static Action HourChanged;   // minuty 
-
-    public static int Minute { get; private set; }
-    public static int Hour { get; private set; }
+    private static int Minute { get; set; }
+    private static int Hour { get; set; }
 
     public float minuteRealTime = 1f;
 
@@ -36,21 +34,20 @@ public class TimerScript : MonoBehaviour
 
     void Update()
     {
-        if (IsTimerOn)
 
 
-            timerSO.timer -= Time.deltaTime;
+        timerSO.timer -= Time.deltaTime;
 
         if (timerSO.timer <= 0)
         {
             Minute++;
             MinuteChanged?.Invoke();
 
-            updateTimer(TimePassed);
-        }
+            
+        
 
 
-        if (Minute >= 60)
+            if (Minute >= 60) 
             {
                 Hour++;
                 Minute = 0;
