@@ -10,16 +10,27 @@ public class Enemy_Shooting : MonoBehaviour
     private float timer;
 
     public float bulletSpeed;
+    
+    [SerializeField] Transform player;
+    [SerializeField] float aggroRange;
 
     void Update()
     {
         timer += Time.deltaTime;
 
-        if(timer > 2.5f)
+        float distToPlayer = Vector2.Distance(transform.position, player.position);
+        
+        if(distToPlayer < aggroRange && timer > 2.5f)
         {
-            timer = 0;
-            shootRight();
-
+            if (player.position.x < transform.position.x)
+            {
+                timer = 0;
+                shootLeft();
+            }
+            else
+            {
+                shootRight();
+            }
         }
     }
 
@@ -27,5 +38,12 @@ public class Enemy_Shooting : MonoBehaviour
     {
         var bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
         bullet.GetComponent<Rigidbody2D>().velocity = bulletSpawnPoint.right * bulletSpeed;
+    }
+    
+    void shootLeft()
+    {
+        //Debug.Log("Strzelam w lewo");
+        var bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+        bullet.GetComponent<Rigidbody2D>().velocity = bulletSpawnPoint.right * -bulletSpeed;
     }
 }
