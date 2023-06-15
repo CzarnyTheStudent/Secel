@@ -20,7 +20,7 @@ public class Enemy_Shooting : MonoBehaviour
 
         float distToPlayer = Vector2.Distance(transform.position, player.position);
         
-        if(distToPlayer < aggroRange && timer > 2.5f)
+        if(distToPlayer < aggroRange && timer > 3f)
         {
             if (player.position.x < transform.position.x)
             {
