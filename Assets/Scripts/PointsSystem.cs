@@ -8,6 +8,8 @@ public class PointsSystem : MonoBehaviour
     public Text ScoreText;
     static public int Score;
     //public Collider2D Target;
+
+    public PointsScriptable pointsSO;
     
     void Start()
     {
@@ -22,6 +24,7 @@ public class PointsSystem : MonoBehaviour
             Score++;
             Destroy(other.gameObject);
             ScoreText.text = "Score: " + Score;
+            pointsSO.Add1ToPoints();
         }
         
     }

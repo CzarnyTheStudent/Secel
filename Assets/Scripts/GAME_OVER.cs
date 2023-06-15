@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
@@ -25,6 +26,11 @@ public class GAME_OVER : MonoBehaviour
         if (_door.IsOpened == true)
         {
             door.GetComponent<Collider2D>().enabled = true;
+        }
+
+        if (Input.GetKey(KeyCode.Alpha0))
+        {
+            GameOver.SetActive(true);
         }
     }
 

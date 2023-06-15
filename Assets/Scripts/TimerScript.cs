@@ -9,6 +9,8 @@ public class TimerScript : MonoBehaviour
     static public bool IsTimerOn = false;
 
     public Text TimerTxt;
+
+    public TimerScriptableObject timerSO;
    
     void Start()
     {
@@ -26,9 +28,11 @@ public class TimerScript : MonoBehaviour
     void updateTimer(float currentTime)
     {
         TimePassed += Time.deltaTime;
+        
         string s = currentTime.ToString("0");
         
         TimerTxt.text = "Time: " + s +" seconds";
+        timerSO.timer = Mathf.RoundToInt(TimePassed);
     }
 
 }
