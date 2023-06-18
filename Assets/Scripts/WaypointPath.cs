@@ -17,11 +17,28 @@ public class WaypointPath : MonoBehaviour
     [SerializeField] private int currentWaypointIndex;
     public bool loop;
 
-#if UNITY_EDITOR
 
-    private void OnDrawGizmos()
+
+
+    private void OnValidate()
     {
-        if (waypoints == null || waypoints.Length < 2)
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            waypoints[i].name = "Waypoint " + (i);
+        }
+    }
+
+    private void Start()
+    {
+        //if (waypoints != null && waypoints.Length > 1)
+        if (waypoints is not { Length: > 1 }) return;
+        currentWaypointIndex = 0;
+        transform.position = waypoints[currentWaypointIndex].position;
+    }
+
+    private void Update()
+    {
+        if (waypoints == null || waypoints.Length < 1)
         {
             return;
         }
@@ -44,14 +61,7 @@ public class WaypointPath : MonoBehaviour
                     previous = waypoints[count - 1].position;
                 }
 
-                if (previous != Vector3.zero)
-                {
-                    Gizmos.color = lineBetweenWaypointsColor;
-                    Gizmos.DrawLine(previous, current);
-                }
-
-                Gizmos.color = waypointColor;
-                Gizmos.DrawWireSphere(current, radius);
+               
             }
 
             if (isClosed)
@@ -59,59 +69,10 @@ public class WaypointPath : MonoBehaviour
                 Vector3 current = waypoints[0].position;
                 Vector3 last = waypoints[count - 1].position;
 
-                Gizmos.color = lineBetweenWaypointsColor;
-                Gizmos.DrawLine(last, current);
+            
             }
-
-            //Gizmos.color = lineColor;
         }
-    }
-#endif
-
-
-    private void OnValidate()
-    {
-        for (int i = 0; i < waypoints.Length; i++)
-        {
-            waypoints[i].name = "Waypoint " + (i);
-        }
-    }
-
-
-
-    /*
-    private void OnDrawGizmosSelected()
-    {
-        Handles.color = Color.white;
-        for (int i = 0; i < waypoints.Length; i++)
-        {
-            Vector3 position = waypoints[i].position;
-            EditorGUI.BeginChangeCheck();
-            position = Handles.PositionHandle(position, Quaternion.identity);
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(waypoints[i], "Move Waypoint");
-                waypoints[i].position = position;
-            }
-            GUIStyle style = new GUIStyle();
-            style.normal.textColor = Color.yellow;
-            style.alignment = TextAnchor.MiddleCenter;
-            Handles.Label(position, "Waypoint " + i, style);
-        }
-
-    }
-    */
-
-    private void Start()
-    {
-        //if (waypoints != null && waypoints.Length > 1)
-        if (waypoints is not { Length: > 1 }) return;
-        currentWaypointIndex = 0;
-        transform.position = waypoints[currentWaypointIndex].position;
-    }
-
-    private void Update()
-    {
+        
         //if (waypoints != null && waypoints.Length > 1)
         if (waypoints is not { Length: > 1 }) return;
         var position = transform.position;

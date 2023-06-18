@@ -3100,7 +3100,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10.932144
+  orthographic size: 13.27
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -7327,20 +7327,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1193034366}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 295c3e119bb069143a4fa5cf9f273ee2, type: 3}
+  m_Script: {fileID: 11500000, guid: 2e1cd00cc68785d46ae2045c8e96a7bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pathMode: 0
-  waypointColor: {r: 1, g: 1, b: 1, a: 1}
-  lineBetweenWaypointsColor: {r: 1, g: 0, b: 0, a: 1}
-  radius: 0.41
-  isClosed: 1
-  waypoints:
-  - {fileID: 1952101460}
-  - {fileID: 1709968491}
-  moveSpeed: 6
-  currentWaypointIndex: 0
-  loop: 1
+  startPoint: {x: 23, y: 6.8189754, z: -3.1319191}
+  endPoint: {x: 23, y: -6.5538316, z: -3.1319191}
+  speed: 5
 --- !u!1 &1202429429
 GameObject:
   m_ObjectHideFlags: 0
